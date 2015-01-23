@@ -164,9 +164,12 @@ foreach ($objects as $object) {
 	file_put_contents($filename,$jpeg);
 	$objIPTC = new IPTC($filename);
 
+	$objIPTC->setValue(IPTC_OBJECT_NAME, $object->{'title'});
 	$objIPTC->setValue(IPTC_HEADLINE, $object->{'title'});
 	$objIPTC->setValue(IPTC_CAPTION, $object->{'title'});
+	$objIPTC->setValue(IPTC_LOCAL_CAPTION, $object->{'title'});
 	$objIPTC->setValue(IPTC_CREDIT, $object->{'owner'}->{'display_name'});
+	$objIPTC->setValue(IPTC_BYLINE, $object->{'owner'}->{'display_name'});
 
 	
 	$index++;
