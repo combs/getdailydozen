@@ -177,16 +177,31 @@ $base="http://yourshot.nationalgeographic.com/";
  
 
 
-$url=$base . "/api/v1/dailydozen/$day/photo/?format=json&apikey=" . trim($api_key) . "&limit=18&page=1";
+$url=$base . "api/v1/dailydozen/$day/photo/?format=json&apikey=" . trim($api_key) . "&limit=18&page=1";
 $json_string_dailydozen = file_get_contents($url);
  
 $parsed_json = json_decode($json_string_dailydozen);
 
-$objects = $parsed_json->{'objects'};
+if (!$parsed_json) {
+	addTextNode($doc,$body,"h1","Couldn't get Daily Dozen for $day. Maybe it was a weekend?");
+	addTextNode($doc,$body,"h2",$json_string_dailydozen);
+
+} else {
+	$objects = $parsed_json->{'objects'};
+}
 
 $index=1;
 
 
+
+if (sizeof($objects)===0) {
+	
+	addTextNode($doc,$body,"h1","Couldn't get Daily Dozen for $day. Maybe it was a weekend?");
+	addTextNode($doc,$body,"h2",$json_string_dailydozen);
+
+	
+} else {
+	
 
 foreach ($objects as $object) {
 	
@@ -229,6 +244,8 @@ foreach ($objects as $object) {
 
 }
 
+
+}
 
 addTextNode($doc,$body,"p","Photographs and captions were submitted by Your Shot community members.");
 
