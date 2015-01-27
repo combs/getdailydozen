@@ -8,7 +8,6 @@ ini_set('auto_detect_line_endings', true);
 // h/t http://stackoverflow.com/questions/5384962/writing-exif-data-in-php
 
 
-
 define("IPTC_OBJECT_NAME", "005");
 define("IPTC_EDIT_STATUS", "007");
 define("IPTC_PRIORITY", "010");
@@ -130,21 +129,51 @@ class IPTC
 }
 
 
-
+// Supply the date as first argument.
 
 $day=$argv[1];
+
 if ($day=="" || $day===false) {
 	exit("Usage: " . basename($argv[0]) . " 2015-01-12\n");
 }
 
 
 $api_key=rtrim(file_get_contents($_SERVER['HOME'] . "/.yourshot-api-key"));
+
 if (!$api_key) {
  exit("\nPlease put your Your Shot API key in ~/.yourshot-api-key\n");
 }
 
 
-$url="http://yourshot.nationalgeographic.com/api/v1/dailydozen/$day/photo/?format=json&apikey=" . trim($api_key) . "&limit=18&page=1";
+// Create DOM document
+
+$doc = new DOMDocument();
+$doc->formatOutput = true;
+
+// Add root html/body nodes to the document
+
+$html = $doc->createElement('html');
+$html = $doc->appendChild($html);
+
+$body = $doc->createElement('body');
+$body = $doc->appendChild($body);
+
+$head = $doc->createElement('head');
+$head = $doc->appendChild($head);
+
+$ol = $doc->createElement('ol');
+$ol = $body->appendChild($ol);
+
+addTextNode($doc,$head,"title","Daily Dozen: " . $day);
+
+
+$outputFilename = "captions-" . $day . ".html";
+
+$base="http://yourshot.nationalgeographic.com/";
+ 
+
+
+$url=$base . "/api/v1/dailydozen/$day/photo/?format=json&apikey=" . trim($api_key) . "&limit=18&page=1";
 $json_string_dailydozen = file_get_contents($url);
  
 $parsed_json = json_decode($json_string_dailydozen);
@@ -154,28 +183,92 @@ $objects = $parsed_json->{'objects'};
 $index=1;
 
 foreach ($objects as $object) {
+	
+	$li = $doc->createElement('li');
+	$li = $ol->appendChild($li);
+	
 	$id=$object->{'id'};
-	$object_url=$object->{'sizes'}->{'large-2048'};
+	$thumb_url=$object->{'sizes'}->{'small-320'};
 	$object_url=$object->{'sizes'}->{'large-2048'};
 	if (strpos($object_url,"http")===false) {
-		$object_url="http://yourshot.nationalgeographic.com/" . $object_url;
+		$object_url=$base . $object_url;
 	}
+	if (strpos($thumb_url,"http")===false) {
+		$thumb_url=preg_replace("/\/+/","/",$base . $thumb_url);
+	}
+	echo $object_url . "\n";
+	
 	$jpeg=file_get_contents($object_url);
+	
 	$filename="daily-dozen-" . trim($day) . "-" . sprintf("%02d",$index) . "-yourshot-" . trim($id) . ".jpg";
+	
 	file_put_contents($filename,$jpeg);
+	
 	$objIPTC = new IPTC($filename);
 
 	$objIPTC->setValue(IPTC_OBJECT_NAME, $object->{'title'});
 	$objIPTC->setValue(IPTC_HEADLINE, $object->{'title'});
-	$objIPTC->setValue(IPTC_CAPTION, $object->{'title'});
-	$objIPTC->setValue(IPTC_LOCAL_CAPTION, $object->{'title'});
-	$objIPTC->setValue(IPTC_CREDIT, $object->{'owner'}->{'display_name'});
+	$objIPTC->setValue(IPTC_CAPTION, $object->{'caption'});
+	$objIPTC->setValue(IPTC_LOCAL_CAPTION, $object->{'caption'});
+	$objIPTC->setValue(IPTC_CREDIT, $object->{'owner'}->{'display_name'} . ", " . $object->{'location'}->{'name'} );
 	$objIPTC->setValue(IPTC_BYLINE, $object->{'owner'}->{'display_name'});
-
 	
+	$image = addImage($doc,$li,$thumb_url);
+	$title = addTextNode($doc,$li,"h1",$object->{'title'});
+	$caption = addTextNode($doc,$li,"blockquote",$object->{'caption'});
+	$credit = addTextNode($doc,$li,"p","Photograph by ");
+	addLink($doc,$credit,$object->{'owner'}->{'display_name'},preg_replace("/\/+/","/",$base . $object->{'absolute_url'}));
+	appendText($doc,$credit,", National Geographic Your Shot");
 	$index++;
-		
-	
+
+}
+
+
+
+
+
+$result = file_put_contents($outputFilename,$doc->saveXML()) ;
+shell_exec("open " . $outputFilename );
+
+
+
+
+function addTextNode($doc,$parent,$name,$value) {
+	$child = $doc->createElement($name);
+	$child = $parent->appendChild($child);
+	$value = $doc->createTextNode($value);
+	$value = $child->appendChild($value); 
+	return $child;	
+}
+function appendText($doc,$parent,$text) {
+	$value = $doc->createTextNode($text);
+	$value = $parent->appendChild($value);  
+	return $parent;
+}	
+function addAttribute($doc,$parent,$name,$value) {
+	$child = $doc->createAttribute($name);
+	$child = $parent->appendChild($child);
+	$value = $doc->createTextNode($value);
+	$value = $child->appendChild($value); 
+	return $child;	
+}
+function addImage($doc,$parent,$src) {
+	$child = $doc->createElement("img");
+	$child = $parent->appendChild($child);
+	$source = $doc->createAttribute("src");
+	$source = $child->appendChild($source);
+	$source->nodeValue=$src;
+	return $child;	
+}
+function addLink($doc,$parent,$text,$link) {
+	$child = $doc->createElement("a");
+	$child = $parent->appendChild($child);
+	$href = $doc->createAttribute("href");
+	$href = $child->appendChild($href);
+	$href->nodeValue=$link;
+	$value = $doc->createTextNode($text);
+	$value = $child->appendChild($value); 
+	return $child;	
 }
 
 
