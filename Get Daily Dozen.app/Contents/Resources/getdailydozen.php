@@ -224,8 +224,7 @@ foreach ($objects as $object) {
 }
 
 
-
-
+addTextNode($doc,$body,"p","Photographs and captions were submitted by Your Shot community members.");
 
 $result = file_put_contents($outputFilename,$doc->saveXML()) ;
 shell_exec("open " . $outputFilename );
