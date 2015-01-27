@@ -161,6 +161,10 @@ $body = $doc->appendChild($body);
 $head = $doc->createElement('head');
 $head = $doc->appendChild($head);
 
+
+addTextNode($doc,$body,"p","Photographs and captions were submitted by Your Shot community members.");
+
+
 $ol = $doc->createElement('ol');
 $ol = $body->appendChild($ol);
 
@@ -181,6 +185,8 @@ $parsed_json = json_decode($json_string_dailydozen);
 $objects = $parsed_json->{'objects'};
 
 $index=1;
+
+
 
 foreach ($objects as $object) {
 	
