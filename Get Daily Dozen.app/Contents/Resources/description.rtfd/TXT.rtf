@@ -1,4 +1,50 @@
 {\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf210
-{\fonttbl}
-{\colortbl;\red255\green255\blue255;}
+{\fonttbl\f0\fnil\fcharset0 LucidaSans;\f1\fnil\fcharset0 HelveticaNeue;}
+{\colortbl;\red255\green255\blue255;\red38\green38\blue38;\red52\green110\blue183;}
+\vieww14360\viewh9600\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs26 \cf0 Code is stored on GitHub:\
+{\field{\*\fldinst{HYPERLINK "https://github.com/combs/getdailydozen/"}}{\fldrslt https://github.com/combs/getdailydozen/\
+}}\
+\pard\pardeftab720\sl640\sa320
+
+\f1\b\fs54 \cf2 Get Daily Dozen\
+\pard\pardeftab720\sl500\sa320
+
+\b0\fs32 \cf2 The {\field{\*\fldinst{HYPERLINK "http://yourshot.nationalgeographic.com/daily-dozen/"}}{\fldrslt \cf3 Daily Dozen}} is a weekday selection of fantastic images shared on {\field{\*\fldinst{HYPERLINK "http://yourshot.nationalgeographic.com/"}}{\fldrslt \cf3 Your Shot}}. We like to feature the Daily Dozen wherever possible, but some systems do not yet automatically ingest the feed.\
+This script is a bit of connective glue to retrieve the JPEGs and their metadata, so that you can produce the Daily Dozen in other Nat Geo outlets.\
+\
+\pard\pardeftab720\sl500\sa320
+
+\b\fs42 \cf2 Setup Instructions
+\b0\fs32 \
+\pard\pardeftab720\sl500\sa320
+\cf2 Open the app and, when prompted, enter your API key.\
+(This is the "password" that lets you download files this way. You only have to enter this once.)\
+\pard\pardeftab720\sl420
+
+\b\fs42 \cf3 \
+\pard\pardeftab720\sl500\sa320
+\cf2 How to Use\
+\pard\pardeftab720\sl500\sa320
+
+\b0\fs32 \cf2 Open the app. Enter the date to download--it defaults to today's date--and choose the folder to save them to.\
+It will churn silently for a minute or so, and then open the Finder window and a caption doc.\
+You can drag all of the JPEGs into AEM in one batch.\
+Captions and credits can be copy/pasted out of the doc, or if you are uploading them to a CMS that supports EXIF/IPTC embeds, they should come through.\
+\pard\pardeftab720\sl420
+
+\b\fs42 \cf3 \
+\pard\pardeftab720\sl500\sa320
+\cf2 Technical Details\
+\pard\pardeftab720\sl500\sa320
+
+\b0\fs32 \cf2 This application requires Mac OS X 10.9 or newer. It could work with older OS X revisions but I haven't tested it.\
+The Your Shot API key is stored in ~/.yourshot-api-key.\
+The main script is built in PHP and is called by a wrapper AppleScript application.\
+\pard\pardeftab720\sl500
+\cf2 Many thanks to {\field{\*\fldinst{HYPERLINK "http://stackoverflow.com/users/702353/mat%C3%ADas"}}{\fldrslt \cf3 Mat\'edas}} on Stack Overflow for an {\field{\*\fldinst{HYPERLINK "http://stackoverflow.com/questions/5384962/writing-exif-data-in-php"}}{\fldrslt \cf3 inline PHP class for changing IPTC values stored in EXIF}}.\
+\pard\pardeftab720\sl500\sa320
+\cf2 \
 }
