@@ -156,19 +156,34 @@ $html = $doc->createElement('html');
 $html = $doc->appendChild($html);
 
 $body = $doc->createElement('body');
-$body = $doc->appendChild($body);
+$body = $html->appendChild($body);
+
+// Set up the header
 
 $head = $doc->createElement('head');
-$head = $doc->appendChild($head);
+
+// Draw in Bootstrap
+
+$css = $doc->createElement('link');
+$css = $head->appendChild($css);
+$css->setAttribute("rel","stylesheet");
+$css->setAttribute("href","http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css");
+$css->setAttribute("type","text/css");
 
 
-addTextNode($doc,$body,"p","Photographs and captions were submitted by Your Shot community members.");
+$head = $html->appendChild($head);
+
+$div = $doc->createElement('div');
+$div->setAttribute("class","container-fluid");
+$div = $body->appendChild($div);
 
 
-$ol = $doc->createElement('ol');
-$ol = $body->appendChild($ol);
+addTextNode($doc,$div,"p","Photographs and captions were submitted by Your Shot community members.");
+
+
 
 addTextNode($doc,$head,"title","Daily Dozen: " . $day);
+addTextNode($doc,$head,"style",".thumbnail { max-width: 400px;margin:1em auto;}");
 
 
 $outputFilename = "captions-" . $day . ".html";
@@ -183,8 +198,8 @@ $json_string_dailydozen = file_get_contents($url);
 $parsed_json = json_decode($json_string_dailydozen);
 
 if (!$parsed_json) {
-	addTextNode($doc,$body,"h1","Couldn't get Daily Dozen for $day. Maybe it was a weekend?");
-	addTextNode($doc,$body,"h2",$json_string_dailydozen);
+	addTextNode($doc,$div,"h1","Couldn't get Daily Dozen for $day. Maybe it was a weekend?");
+	addTextNode($doc,$div,"h2",$json_string_dailydozen);
 
 } else {
 	$objects = $parsed_json->{'objects'};
@@ -196,17 +211,21 @@ $index=1;
 
 if (sizeof($objects)===0) {
 	
-	addTextNode($doc,$body,"h1","Couldn't get Daily Dozen for $day. Maybe it was a weekend?");
-	addTextNode($doc,$body,"h2",$json_string_dailydozen);
+	addTextNode($doc,$div,"h1","Couldn't get Daily Dozen for $day. Maybe it was a weekend?");
+	addTextNode($doc,$div,"h2",$json_string_dailydozen);
 
 	
 } else {
 	
 
 foreach ($objects as $object) {
+		
+	$thisdiv = $doc->createElement('div');
+	$thisdiv->setAttribute("class","thumbnail");
 	
-	$li = $doc->createElement('li');
-	$li = $ol->appendChild($li);
+//	$thisdiv->setAttribute("style","border: 1px solid grey;");
+	$thisdiv = $div->appendChild($thisdiv);
+	
 	
 	$id=$object->{'id'};
 	$thumb_url=$object->{'sizes'}->{'small-320'};
@@ -234,10 +253,10 @@ foreach ($objects as $object) {
 	$objIPTC->setValue(IPTC_CREDIT, $object->{'owner'}->{'display_name'} . ", " . $object->{'location'}->{'name'} );
 	$objIPTC->setValue(IPTC_BYLINE, $object->{'owner'}->{'display_name'});
 	
-	$image = addImage($doc,$li,$thumb_url);
-	$title = addTextNode($doc,$li,"h1",$object->{'title'});
-	$caption = addTextNode($doc,$li,"blockquote",$object->{'caption'});
-	$credit = addTextNode($doc,$li,"p","Photograph by ");
+	$image = addImage($doc,$thisdiv,$thumb_url);
+	$title = addTextNode($doc,$thisdiv,"h2",$object->{'title'});
+	$caption = addTextNode($doc,$thisdiv,"p",$object->{'caption'});
+	$credit = addTextNode($doc,$thisdiv,"p","Photograph by ");
 	addLink($doc,$credit,$object->{'owner'}->{'display_name'},preg_replace("/\/+/","/",$base . $object->{'absolute_url'}));
 	appendText($doc,$credit,", National Geographic Your Shot");
 	$index++;
@@ -247,7 +266,7 @@ foreach ($objects as $object) {
 
 }
 
-addTextNode($doc,$body,"p","Photographs and captions were submitted by Your Shot community members.");
+addTextNode($doc,$div,"p","Photographs and captions were submitted by Your Shot community members.");
 
 $result = file_put_contents($outputFilename,$doc->saveXML()) ;
 shell_exec("open " . $outputFilename );
