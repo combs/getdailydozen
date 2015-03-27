@@ -234,8 +234,7 @@ foreach ($objects as $object) {
 		$object_url=$base . $object_url;
 	}
 	if (strpos($thumb_url,"http")===false) {
-		$thumb_url=preg_replace("/\/+/","/",$base . $thumb_url);
-	}
+		$thumb_url=preg_replace("/:\//","://",preg_replace("/\/+/","/",$base . $thumb_url)); 	}
 	echo $object_url . "\n";
 	
 	$jpeg=file_get_contents($object_url);
@@ -257,7 +256,7 @@ foreach ($objects as $object) {
 	$title = addTextNode($doc,$thisdiv,"h2",$object->{'title'});
 	$caption = addTextNode($doc,$thisdiv,"p",$object->{'caption'});
 	$credit = addTextNode($doc,$thisdiv,"p","Photograph by ");
-	addLink($doc,$credit,$object->{'owner'}->{'display_name'},preg_replace("/\/+/","/",$base . $object->{'absolute_url'}));
+	addLink($doc,$credit,$object->{'owner'}->{'display_name'},preg_replace("/:\//","://",preg_replace("/\/+/","/",$base . $object->{'absolute_url'})));
 	appendText($doc,$credit,", National Geographic Your Shot");
 	$index++;
 
